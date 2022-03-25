@@ -4,10 +4,11 @@ import java.util.Optional;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,35 +22,38 @@ public class ClientService {
 
 	@Autowired
 	private ClientRepository repository;
+	
+	@Autowired
+	private ModelMapper mapper;
 
 	@Transactional(readOnly = true)
 	public ClientDTO findById(Long id) {
 		Optional<Client> entity = repository.findById(id);
 		Client client = entity.orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
-		return new ClientDTO(client);
+		return mapper.map(client, ClientDTO.class);
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ClientDTO> findAllPaged(PageRequest pageRequest) {
-		Page<Client> clientPage = repository.findAll(pageRequest);
-		return clientPage.map(x -> new ClientDTO(x));
+	public Page<ClientDTO> findAllPaged(Pageable page) {
+		Page<Client> clientPage = repository.findAll(page);
+		return clientPage.map(x -> mapper.map(x, ClientDTO.class));
 	}
 
 	@Transactional
 	public ClientDTO insert(ClientDTO newClient) {
 		Client entity = new Client();
-		convertToEntity(newClient, entity);
+		mapper.map(newClient, entity);
 		entity = repository.save(entity);
-		return new ClientDTO(entity);
+		return mapper.map(entity, ClientDTO.class);
 	}
 
 	@Transactional
 	public ClientDTO update(Long id, ClientDTO dto) {
 		try {
 			Client entity = repository.getOne(id);
-			convertToEntity(dto, entity);
+			mapper.map(dto, entity);
 			entity = repository.save(entity);
-			return new ClientDTO(entity);
+			return mapper.map(entity, ClientDTO.class);
 		}
 		catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException("Cliente não encontrado");
@@ -64,13 +68,5 @@ public class ClientService {
 		catch(EmptyResultDataAccessException e) {
 			throw new ResourceNotFoundException("Cliente não encontrado");
 		}
-	}
-
-	private void convertToEntity(ClientDTO dto, Client entity) {
-		entity.setName(dto.getName());
-		entity.setCpf(dto.getCpf());
-		entity.setIncome(dto.getIncome());
-		entity.setBirthDate(dto.getBirthDate());
-		entity.setChildren(dto.getChildren());
 	}
 }

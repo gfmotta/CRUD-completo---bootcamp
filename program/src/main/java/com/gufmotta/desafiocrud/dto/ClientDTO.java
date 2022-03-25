@@ -41,7 +41,7 @@ public class ClientDTO implements Serializable {
 		return id;
 	}
 
-	public void setiId(Long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	
