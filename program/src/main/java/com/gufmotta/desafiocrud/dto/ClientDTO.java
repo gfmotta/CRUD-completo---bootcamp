@@ -3,8 +3,6 @@ package com.gufmotta.desafiocrud.dto;
 import java.io.Serializable;
 import java.time.Instant;
 
-import com.gufmotta.desafiocrud.entities.Client;
-
 public class ClientDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -17,15 +15,6 @@ public class ClientDTO implements Serializable {
 	
 	public ClientDTO() {
 		
-	}
-	
-	public ClientDTO(Client client) {
-		this.id = client.getId();
-		this.name = client.getName();
-		this.cpf = client.getCpf();
-		this.income = client.getIncome();
-		this.birthDate = client.getBirthDate();
-		this.children = client.getChildren();
 	}
 
 	public ClientDTO(Long id, String name, String cpf, Double income, Instant birthDate, Integer children) {
